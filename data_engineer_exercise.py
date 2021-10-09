@@ -15,7 +15,7 @@ In the following code, I will use the three files "cons.csv", "cons_email.csv", 
 ## Packages and Data Importing
 """
 
-# Packages: numpy, pandas
+# Packages: pandas
 import pandas as pd
 
 # Import .csv files from working directory 
@@ -92,7 +92,7 @@ people.dtypes
 
 people.to_csv("people.csv")
 
-"""## Task 2: "acquisition_tasks" file """
+"""## Task 2: "acquisition_facts" file """
 
 # Get dates from datetime column
 
