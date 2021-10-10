@@ -34,10 +34,10 @@ print(cons_email_chapter_subscription.columns)
 """## Task 1: "people" file"""
 
 # We want "email" from the cons_email.csv file
-# We want "create_dt" and "modified_dt" and "source" from the cons.csv file
-# Finally, we want "is_unsub" from the cons_email_chapter_subscription.csv file
-# If a primary email from "email" is not in cons_email_chapter_subscription, it
-# receives a 0 for is_unsub, because it is still subscribed. 
+# We want "create_dt" and "modified_dt" from the cons.csv file 
+# (Because we want to know when the *person's* file was created, not their email)
+# We also want "subsource" to create the "code" column
+# Finally, we want "isunsub" from the cons_email_chapter_subscription.csv file
 
 # Merge data frames - outer join first to not lose any data 
 cons_join = cons.merge(cons_email, on = ["cons_id"], how = "outer")
@@ -61,12 +61,13 @@ cons_join["isunsub"].isnull().values.any()
 # Create people dataframe 
 # The create_t and modified_dt we want are the "x" ones
 
-people = cons_join[["email", "source", "isunsub", "create_dt_x", 
+people = cons_join[["email", "source", "subsource", "isunsub", "create_dt_x", 
                     "modified_dt_x"]].reset_index(drop = True)
 
 # Rename columns to requested
 
-people.columns = ["email", "code", "is_unsub", "created_dt", "updated_dt"]
+people.columns = ["email", "source", "subsource", "is_unsub", "created_dt", 
+                  "updated_dt"]
 
 # Check if new df was created properly
 
@@ -76,13 +77,25 @@ people.head(10)
 
 people.dtypes
 
+# Fix NaN's so they can be used as strings
+
+people["source"] = people["source"].fillna("NA")
+people["subsource"] = people["subsource"].fillna("NA")
+
 # Change datatypes to requested 
 
 people["email"] = people["email"].astype("string")
-people["code"] = people["code"].astype("string")
+people["source"] = people["source"].astype("string")
+people["subsource"] = people["subsource"].astype("string")
 people["is_unsub"] = people["is_unsub"].astype("bool")
 people["created_dt"] = pd.to_datetime(people["created_dt"])
 people["updated_dt"] = pd.to_datetime(people["updated_dt"])
+
+# Create a code column that contains source and subsource
+
+people["code"] = people["source"] + ": " + people["subsource"]
+people = people[["email", "code", "is_unsub", "created_dt", "updated_dt"]]
+people["code"][people["code"] == "NA: NA"] = "NA"
 
 # Check datatypes again
 
